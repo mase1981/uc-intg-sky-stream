@@ -22,9 +22,11 @@ from uc_intg_sky_stream.config import SkyStreamConfig
 from uc_intg_sky_stream.const import (
     KEY_CHANNEL_DOWN,
     KEY_CHANNEL_UP,
+    KEY_FAST_FORWARD,
     KEY_MUTE,
     KEY_PLAY_PAUSE,
     KEY_POWER,
+    KEY_REWIND,
     KEY_VOLUME_DOWN,
     KEY_VOLUME_UP,
     STATE_OFF,
@@ -176,6 +178,12 @@ class SkyStreamDevice(PollingDevice):
 
     async def play_pause(self) -> None:
         await self.send_key(KEY_PLAY_PAUSE)
+
+    async def fast_forward(self) -> None:
+        await self.send_key(KEY_FAST_FORWARD)
+
+    async def rewind(self) -> None:
+        await self.send_key(KEY_REWIND)
 
     async def channel_up(self) -> None:
         await self.send_key(KEY_CHANNEL_UP)

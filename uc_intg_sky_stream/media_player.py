@@ -22,6 +22,8 @@ FEATURES = [
     media_player.Features.VOLUME_UP_DOWN,
     media_player.Features.MUTE_TOGGLE,
     media_player.Features.PLAY_PAUSE,
+    media_player.Features.FAST_FORWARD,
+    media_player.Features.REWIND,
     media_player.Features.NEXT,
     media_player.Features.PREVIOUS,
 ]
@@ -38,7 +40,7 @@ class SkyStreamMediaPlayer(MediaPlayerEntity):
             device_config.name,
             FEATURES,
             {media_player.Attributes.STATE: media_player.States.UNKNOWN},
-            device_class=media_player.DeviceClasses.RECEIVER,
+            device_class=media_player.DeviceClasses.SET_TOP_BOX,
             cmd_handler=self._handle_command,
         )
         self.subscribe_to_device(device)
@@ -58,6 +60,10 @@ class SkyStreamMediaPlayer(MediaPlayerEntity):
                     await self._device.power_toggle()
                 case media_player.Commands.PLAY_PAUSE:
                     await self._device.play_pause()
+                case media_player.Commands.FAST_FORWARD:
+                    await self._device.fast_forward()
+                case media_player.Commands.REWIND:
+                    await self._device.rewind()
                 case media_player.Commands.NEXT:
                     await self._device.channel_up()
                 case media_player.Commands.PREVIOUS:
