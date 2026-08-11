@@ -1,0 +1,39 @@
+{
+  "driver_id": "uc_intg_sky_stream",
+  "version": "1.0.0",
+  "min_core_api": "0.22.0",
+  "name": {
+    "en": "Sky Stream"
+  },
+  "icon": "uc:tv",
+  "description": {
+    "en": "Control Sky Stream and Sky Glass boxes over your local network. Full remote control (navigation, playback, colour buttons, channel and volume, digits) plus a media player with power, volume, mute and transport. Boxes are discovered automatically, and Wake-on-LAN powers them on from standby. No Sky account required - control is entirely local."
+  },
+  "developer": {
+    "name": "Meir Miyara",
+    "email": "meir.miyara@gmail.com",
+    "url": "https://github.com/mase1981"
+  },
+  "home_page": "https://github.com/mase1981/uc-intg-sky-stream",
+  "release_date": "2026-08-11",
+  "setup_data_schema": {
+    "title": {
+      "en": "Sky Stream Setup"
+    },
+    "settings": [
+      {
+        "id": "info",
+        "label": {
+          "en": "Sky Stream / Sky Glass"
+        },
+        "field": {
+          "label": {
+            "value": {
+              "en": "On the next screen your Sky boxes are discovered automatically. Leave the IP address blank to auto-discover, or enter it manually if discovery does not find your box. The box must be powered on (not in standby) during setup."
+            }
+          }
+        }
+      }
+    ]
+  }
+}

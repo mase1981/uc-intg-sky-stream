@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "uc-intg-sky-stream"
+version = "1.0.0"
+description = "Sky Stream / Sky Glass integration for Unfolded Circle Remote Two/3"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MPL-2.0"}
+authors = [
+    {name = "Meir Miyara", email = "meir.miyara@gmail.com"}
+]
+keywords = ["sky", "sky-stream", "sky-glass", "set-top-box", "media-player", "unfolded-circle", "remote", "integration"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Home Automation",
+    "Topic :: Multimedia",
+]
+dependencies = [
+    "ucapi>=0.7.0",
+    "ucapi-framework>=1.9.5",
+    "aiohttp>=3.9.0",
+    "zeroconf>=0.141.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/mase1981/uc-intg-sky-stream"
+"Bug Reports" = "https://github.com/mase1981/uc-intg-sky-stream/issues"
+"Source" = "https://github.com/mase1981/uc-intg-sky-stream"
+
+[project.scripts]
+uc-intg-sky-stream = "uc_intg_sky_stream:main"
+
+[tool.setuptools.packages.find]
+include = ["uc_intg_sky_stream*"]
+
+[tool.setuptools.package-data]
+uc_intg_sky_stream = ["*.json"]
