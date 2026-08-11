@@ -1,114 +1,140 @@
-# Sky Stream — Unfolded Circle Integration
+# Sky Stream Integration for Unfolded Circle Remote 2/3
 
-Control **Sky Stream** and **Sky Glass** boxes from your Unfolded Circle Remote Two/3, entirely over your local network. No Sky account, cloud service, or subscription login is required — control is local and instant.
+Control your **Sky Stream** and **Sky Glass** boxes directly from your Unfolded Circle Remote 2 or Remote 3. Full navigation, playback, colour buttons, channel and volume, digit entry, and power - controlled **entirely locally** over your network with **no Sky account, cloud service, or subscription login** required.
 
-This integration speaks the same LAN protocol the official Sky Remote app uses (mTLS + WebSocket on port `8091`), so it drives the box directly with no middleman.
+> **Which integration do I need?** This is for **Sky Stream** pucks and **Sky Glass** TVs (the streaming boxes that run the Sky OS / Entertainment OS). For older **Sky Q** satellite boxes, use the separate [Sky Q integration](https://github.com/mase1981/uc-intg-skyq). The quick test: if your box **streams over the internet** (no satellite dish) → this integration; if it uses a **dish / Sky Q remote** → the other one.
 
 ![Sky](https://img.shields.io/badge/Sky-Stream%20%26%20Glass-0072C9)
-![Version](https://img.shields.io/github/v/release/mase1981/uc-intg-sky-stream)
-![License](https://img.shields.io/badge/license-MPL--2.0-green)
+[![GitHub Release](https://img.shields.io/github/v/release/mase1981/uc-intg-sky-stream?style=flat-square)](https://github.com/mase1981/uc-intg-sky-stream/releases)
+![License](https://img.shields.io/badge/license-MPL--2.0-blue?style=flat-square)
+[![GitHub issues](https://img.shields.io/github/issues/mase1981/uc-intg-sky-stream?style=flat-square)](https://github.com/mase1981/uc-intg-sky-stream/issues)
+[![Community Forum](https://img.shields.io/badge/community-forum-blue?style=flat-square)](https://unfolded.community/)
+[![Discord](https://badgen.net/discord/online-members/zGVYf58)](https://discord.gg/zGVYf58)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/mase1981/uc-intg-sky-stream/total?style=flat-square)
+[![Buy Me A Coffee](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?style=flat-square)](https://buymeacoffee.com/meirmiyara)
+[![PayPal](https://img.shields.io/badge/PayPal-donate-blue.svg?style=flat-square)](https://paypal.me/mmiyara)
+[![Github Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-30363D?&logo=GitHub-Sponsors&logoColor=EA4AAA&style=flat-square)](https://github.com/sponsors/mase1981)
 
----
+## Supported Devices
+
+Sky streaming boxes on the local network, including: **Sky Stream** puck and **Sky Glass** TV (UK and international variants running Sky OS / Comcast Entertainment OS). Older **Sky Q** satellite boxes are **not** supported here - see the note above.
 
 ## Features
 
-Two entities are created for each Sky box:
-
-### Remote
-The full Sky button surface, ready for activities and macros:
-
-- **Navigation:** Up, Down, Left, Right, OK, Back, Dismiss, Home
-- **Menus:** Menu, Info, Options, Search, Settings, Sky+
-- **Playback:** Play/Pause, Rewind, Fast-Forward, Record
-- **Channel & Volume:** Channel Up/Down, Volume Up/Down, Mute
-- **Colour buttons:** Red, Green, Yellow, Blue
-- **Digits:** 0–9 (enter channel numbers directly)
-- **Power:** discrete `POWER_ON` / `POWER_OFF` (for activities) and `POWER` toggle
-
-Physical Remote buttons and two on-screen UI pages are pre-mapped out of the box.
-
-### Media Player
-A simple receiver-style media player with Power on/off/toggle, Volume Up/Down, Mute, Play/Pause, and Channel next/previous.
-
-### Wake-on-LAN
-When a box is discovered via mDNS, its MAC address is stored so the integration can wake it from standby with a Wake-on-LAN magic packet when you power it on.
+- **📺 Full remote entity** - navigation (up/down/left/right/OK/back), Home, Menu, Info, Options, Search, Settings, and Sky+ as simple commands for Activities, with physical button mapping and ready-made button pages.
+- **🎬 Playback controls** - play/pause, rewind, fast-forward, and record.
+- **🔴 Colour buttons** - Red, Green, Yellow, Blue interactive buttons.
+- **🔢 Channel & digits** - channel up/down and digits 0-9 for direct channel entry.
+- **🔊 Media player** - power on/off, volume up/down, mute, and transport as a set-top-box media player.
+- **⚡ Wake-on-LAN** - power the box on from standby when it was discovered on the network.
+- **🔒 Fully local** - direct LAN control, no Sky account and no cloud in the loop.
+- **Multi-device** - add each Sky box on your network.
 
 ---
+## ❤️ Support Development ❤️
 
-## Installation
+If you find this integration useful, consider supporting development:
 
-### Option 1: Upload to the Remote (recommended)
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub-pink?style=for-the-badge&logo=github)](https://github.com/sponsors/mase1981)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/meirmiyara)
+[![PayPal](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/mmiyara)
 
-1. Download the latest `uc-intg-sky-stream-*-aarch64.tar.gz` from the [Releases](https://github.com/mase1981/uc-intg-sky-stream/releases) page.
-2. In the Remote web configurator, go to **Integrations → Add New → Install Custom** and upload the `.tar.gz`.
-3. Start setup (see below).
-
-### Option 2: Docker
-
-```bash
-docker run -d --name uc-intg-sky-stream --network host \
-  -v $(pwd)/config:/config \
-  -e UC_INTEGRATION_HTTP_PORT=9090 \
-  ghcr.io/mase1981/uc-intg-sky-stream:latest
-```
-
-Then add it to the Remote as an external integration pointing at the host's IP and port `9090`.
-
----
-
-## Setup
-
-1. Make sure your Sky box is **powered on** (not in standby) and on the same network as the Remote.
-2. Start the integration setup.
-3. Your boxes are **discovered automatically**. If you have more than one, pick it from the list. If discovery finds nothing, enter the box's **IP address** manually.
-4. The integration pairs and binds to the box (no PIN is shown on the TV — pairing is automatic) and reads its friendly name.
-5. The **Remote** and **Media Player** entities are added and ready to use.
-
-> **Note:** Repeated *failed* pairing attempts can temporarily lock the box out of pairing. If pairing keeps failing, reboot the Sky box and try again.
-
+Your support helps maintain this integration. Thank you! ❤️
 ---
 
 ## How It Works
 
-| Layer | Detail |
-|-------|--------|
-| Discovery | mDNS `_rdk-rics._tcp.local.` |
-| Transport | TLS 1.3 (mTLS) on TCP `8091` |
-| Session | WebSocket `/iptarget` → Pair → Bind → `keyatomic` key commands |
-| State | Reachability probe (ON when awake, OFF in standby) |
-| Wake | Wake-on-LAN magic packet to the box's MAC |
+Sky Stream and Sky Glass boxes expose the same local remote-control protocol used by the official Sky Remote app. This integration speaks that protocol directly:
 
-The mTLS client identity is the shared identity from the Sky Remote app and is embedded in the integration — nothing needs to be configured.
+- **No account, no cloud** - control runs entirely over your local network. Nothing is sent to Sky's servers.
+- **Automatic pairing** - the box accepts the pairing automatically; **no PIN is shown on the TV** and nothing needs to be entered.
+- **State follows the box** - the integration reports the box as **On** when it is awake and **Off** when it is in standby (based on network reachability).
 
----
+> This integration uses a community-documented local protocol reverse-engineered by the [sky_stream_remote](https://github.com/jatatech/sky_stream_remote) project. It is not affiliated with or endorsed by Sky, and Sky could change the protocol at any time. Because the protocol is command-only, live now-playing information (programme title, artwork) is not available.
+
+## Requirements
+
+- A Sky Stream puck or Sky Glass TV on the same network as your Remote.
+- The box powered on (not in standby) during setup.
+- Unfolded Circle Remote 2 / 3 with firmware supporting custom integrations.
+
+## Installation
+
+### Option 1: Remote Web Interface (Recommended)
+
+1. Download the latest `uc-intg-sky-stream-<version>.tar.gz` from the [**Releases**](https://github.com/mase1981/uc-intg-sky-stream/releases) page.
+2. Open your Remote's web interface (`http://your-remote-ip`).
+3. Go to **Settings -> Integrations -> Add Integration -> Install Custom** and upload the `.tar.gz`.
+
+### Option 2: Docker (Advanced Users)
+
+**Image**: `ghcr.io/mase1981/uc-intg-sky-stream:latest`
+
+**Docker Compose:**
+```yaml
+services:
+  uc-intg-sky-stream:
+    image: ghcr.io/mase1981/uc-intg-sky-stream:latest
+    container_name: uc-intg-sky-stream
+    network_mode: host
+    volumes:
+      - ./config:/config
+    environment:
+      - UC_CONFIG_HOME=/config
+      - UC_INTEGRATION_HTTP_PORT=9090
+      - UC_INTEGRATION_INTERFACE=0.0.0.0
+      - PYTHONPATH=/app
+    restart: unless-stopped
+```
+
+**Docker Run:**
+```bash
+docker run -d --name uc-intg-sky-stream --restart unless-stopped --network host -v $(pwd)/config:/config -e UC_CONFIG_HOME=/config -e UC_INTEGRATION_INTERFACE=0.0.0.0 -e UC_INTEGRATION_HTTP_PORT=9090 -e PYTHONPATH=/app ghcr.io/mase1981/uc-intg-sky-stream:latest
+```
+
+## Configuration
+
+1. Make sure your Sky box is **powered on** (not in standby) and on the same network as the Remote.
+2. Start setup. Your boxes are **discovered automatically**; if you have more than one, pick the box to add. If discovery finds nothing, **enter the box's IP address** manually.
+3. Repeat setup to add additional Sky boxes.
+
+For each device the integration creates:
+
+| Entity | Purpose |
+|--------|---------|
+| **Remote** (`<name> Remote`) | Full button surface (navigation, playback, colour, channel, volume, digits, power) as simple commands for Activities, with button pages. |
+| **Media player** (`<name>`) | Power on/off, volume, mute, play/pause, fast-forward/rewind, and channel next/previous. |
+
+> **Note:** Wake-on-LAN is only available when the box is added via **automatic discovery** (that is where its network address is captured). Boxes added by manual IP can be controlled while awake but cannot be powered on from full standby.
 
 ## Troubleshooting
 
 | Symptom | Fix |
 |---------|-----|
-| Box not discovered | Ensure it is powered on and on the same subnet; enter the IP manually |
-| Pairing fails repeatedly | Reboot the Sky box to clear a pairing lockout |
-| Can't power on from standby | Wake-on-LAN needs the box's MAC — this is only captured via mDNS discovery, not manual IP entry |
-| Commands do nothing when box is off | Power the box on first; it must be awake to accept commands |
+| "No Sky boxes were found" | Ensure the box is powered on and on the same network/subnet as the Remote, then re-run setup and enter the IP manually. |
+| Pairing keeps failing | Repeated failed pairings can temporarily lock the box out - reboot the Sky box and try again. |
+| Commands do nothing | The box must be awake to accept commands; power it on first. |
+| Cannot power on from standby | Wake-on-LAN needs the box's network address, which is only captured via automatic discovery - re-add the box using discovery rather than a manual IP. |
+| No programme title or artwork | The Sky local protocol is command-only and does not report now-playing information; this is a protocol limitation, not a bug. |
+
+## Credits
+
+- **Developer**: Meir Miyara
+- **Sky local protocol**: [jatatech/sky_stream_remote](https://github.com/jatatech/sky_stream_remote) (community reverse-engineering).
+- **Unfolded Circle**: Remote 2/3 integration framework ([ucapi](https://github.com/unfoldedcircle/integration-python-library) / [ucapi-framework](https://github.com/JackJPowell/ucapi-framework)).
+
+## License
+
+Mozilla Public License 2.0 (MPL-2.0) - see the LICENSE file.
+
+## Support & Community
+
+- **GitHub Issues**: [Report bugs and request features](https://github.com/mase1981/uc-intg-sky-stream/issues)
+- **UC Community Forum**: [General discussion and support](https://unfolded.community/)
+- **Developer**: [Meir Miyara](https://www.linkedin.com/in/meirmiyara)
 
 ---
 
-## Acknowledgements
+**Made with ❤️ for the Unfolded Circle Community**
 
-The Sky LAN control protocol was reverse-engineered by the [jatatech/sky_stream_remote](https://github.com/jatatech/sky_stream_remote) project. This integration reimplements that verified protocol for the Unfolded Circle platform.
-
----
-
-## Support
-
-- **Issues:** [GitHub Issues](https://github.com/mase1981/uc-intg-sky-stream/issues)
-- **Author:** Meir Miyara
-
-If you find this integration useful, consider supporting development:
-
-- [Buy Me a Coffee](https://www.buymeacoffee.com/meirmiyara)
-- [PayPal](https://paypal.me/mmiyara)
-
----
-
-*Sky, Sky Stream, and Sky Glass are trademarks of Sky UK Limited. This project is not affiliated with, endorsed by, or sponsored by Sky.*
+**Thank You**: Meir Miyara
