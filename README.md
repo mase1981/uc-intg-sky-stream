@@ -96,25 +96,29 @@ docker run -d --name uc-intg-sky-stream --restart unless-stopped --network host 
 
 1. Make sure your Sky box is **powered on** (not in standby) and on the same network as the Remote.
 2. Start setup. Your boxes are **discovered automatically**; if you have more than one, pick the box to add. If discovery finds nothing, **enter the box's IP address** manually.
+   - **MAC Address (optional)**: only needed to power the box on from standby when it was added by IP and the integration could not find its MAC on the network. Format `AA:BB:CC:DD:EE:FF`.
+   - If something goes wrong, setup shows what happened on the same screen so you can correct it.
 3. Repeat setup to add additional Sky boxes.
 
 For each device the integration creates:
 
 | Entity | Purpose |
 |--------|---------|
-| **Remote** (`<name> Remote`) | Full button surface (navigation, playback, colour, channel, volume, digits, power) as simple commands for Activities, with button pages. |
+| **Remote** (`<name> Remote`) | Full button surface (navigation, playback, colour, channel, volume, digits, power) as simple commands for Activities, with button pages. Send Command supports repeat and delay, command sequences (list or comma separated), and the box's own key names (e.g. `ArrowUp`, `Digit5`). |
 | **Media player** (`<name>`) | Power on/off, volume, mute, play/pause, fast-forward/rewind, and channel next/previous. |
 
-> **Note:** Wake-on-LAN is only available when the box is added via **automatic discovery** (that is where its network address is captured). Boxes added by manual IP can be controlled while awake but cannot be powered on from full standby.
+> **Note:** Wake-on-LAN needs the box's MAC address. It is captured automatically when the box is discovered; for a box added by IP, setup looks it up on the network, or you can enter it in the optional MAC Address field.
 
 ## Troubleshooting
 
 | Symptom | Fix |
 |---------|-----|
-| "No Sky boxes were found" | Ensure the box is powered on and on the same network/subnet as the Remote, then re-run setup and enter the IP manually. |
+| "No Sky box answered on the network" | Ensure the box is powered on and on the same network/subnet as the Remote, then enter the IP manually. |
+| "No answer from <IP> on port 8091" | Wrong IP, box in standby, or the Remote and box are on different networks. From a PC on the same network, `Test-NetConnection <IP> -Port 8091` (Windows) shows whether the box accepts the connection. |
+| "Refused the Sky remote control connection" | The device at that IP is not accepting Sky remote control; check the IP is the Sky box. |
 | Pairing keeps failing | Repeated failed pairings can temporarily lock the box out - reboot the Sky box and try again. |
 | Commands do nothing | The box must be awake to accept commands; power it on first. |
-| Cannot power on from standby | Wake-on-LAN needs the box's network address, which is only captured via automatic discovery - re-add the box using discovery rather than a manual IP. |
+| Cannot power on from standby | Wake-on-LAN needs the box's MAC address - re-run setup and enter it in the optional MAC Address field. |
 | No programme title or artwork | The Sky local protocol is command-only and does not report now-playing information; this is a protocol limitation, not a bug. |
 
 ## Credits

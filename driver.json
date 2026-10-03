@@ -1,6 +1,6 @@
 {
   "driver_id": "uc_intg_sky_stream",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "min_core_api": "0.22.0",
   "name": {
     "en": "Sky Stream"
@@ -15,7 +15,7 @@
     "url": "https://github.com/mase1981"
   },
   "home_page": "https://github.com/mase1981/uc-intg-sky-stream",
-  "release_date": "2026-08-11",
+  "release_date": "2026-10-03",
   "setup_data_schema": {
     "title": {
       "en": "Sky Stream Setup"

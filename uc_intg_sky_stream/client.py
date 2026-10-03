@@ -61,8 +61,8 @@ def send_wol(mac_address: str) -> None:
                 _LOG.debug("WoL send on port %s failed: %s", port, err)
 
 
-async def is_box_reachable(host: str, port: int = DEFAULT_PORT, timeout: float = 1.5) -> bool:
-    """Quick TCP probe: True if the box is awake and accepting connections."""
+async def probe_box(host: str, port: int = DEFAULT_PORT, timeout: float = 1.5) -> str:
+    """TCP probe: "ok", "refused" (host up, port closed), "timeout" (no answer) or "error"."""
     try:
         _, writer = await asyncio.wait_for(asyncio.open_connection(host, port), timeout=timeout)
         writer.close()
@@ -70,9 +70,19 @@ async def is_box_reachable(host: str, port: int = DEFAULT_PORT, timeout: float =
             await writer.wait_closed()
         except Exception:  # pylint: disable=broad-exception-caught
             pass
-        return True
-    except (OSError, asyncio.TimeoutError):
-        return False
+        return "ok"
+    except ConnectionRefusedError:
+        return "refused"
+    except asyncio.TimeoutError:
+        return "timeout"
+    except OSError as err:
+        _LOG.debug("Probe %s:%s failed: %s", host, port, err)
+        return "error"
+
+
+async def is_box_reachable(host: str, port: int = DEFAULT_PORT, timeout: float = 1.5) -> bool:
+    """Quick TCP probe: True if the box is awake and accepting connections."""
+    return await probe_box(host, port, timeout) == "ok"
 
 
 def compute_authtoken(cert_fingerprint: str, pairingcode: str, controllernonce: str, stbnonce: str) -> str:

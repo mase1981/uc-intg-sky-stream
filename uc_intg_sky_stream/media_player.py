@@ -51,32 +51,34 @@ class SkyStreamMediaPlayer(MediaPlayerEntity):
 
     async def _handle_command(self, entity: Any, cmd_id: str, params: dict | None = None, *_a: Any) -> StatusCodes:
         try:
+            ok = True
             match cmd_id:
+                # Power on/off answer OK as before: activities must not stop on a sleeping box.
                 case media_player.Commands.ON:
                     await self._device.power_on()
                 case media_player.Commands.OFF:
                     await self._device.power_off()
                 case media_player.Commands.TOGGLE:
-                    await self._device.power_toggle()
+                    ok = await self._device.power_toggle()
                 case media_player.Commands.PLAY_PAUSE:
-                    await self._device.play_pause()
+                    ok = await self._device.play_pause()
                 case media_player.Commands.FAST_FORWARD:
-                    await self._device.fast_forward()
+                    ok = await self._device.fast_forward()
                 case media_player.Commands.REWIND:
-                    await self._device.rewind()
+                    ok = await self._device.rewind()
                 case media_player.Commands.NEXT:
-                    await self._device.channel_up()
+                    ok = await self._device.channel_up()
                 case media_player.Commands.PREVIOUS:
-                    await self._device.channel_down()
+                    ok = await self._device.channel_down()
                 case media_player.Commands.VOLUME_UP:
-                    await self._device.volume_up()
+                    ok = await self._device.volume_up()
                 case media_player.Commands.VOLUME_DOWN:
-                    await self._device.volume_down()
+                    ok = await self._device.volume_down()
                 case media_player.Commands.MUTE_TOGGLE:
-                    await self._device.mute_toggle()
+                    ok = await self._device.mute_toggle()
                 case _:
                     return StatusCodes.NOT_IMPLEMENTED
-            return StatusCodes.OK
+            return StatusCodes.OK if ok else StatusCodes.SERVICE_UNAVAILABLE
         except Exception as err:  # pylint: disable=broad-exception-caught
             _LOG.error("[%s] Command error (%s): %s", entity.id, cmd_id, err)
             return StatusCodes.SERVER_ERROR

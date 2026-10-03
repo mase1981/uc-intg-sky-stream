@@ -1,5 +1,6 @@
 """Sky Stream remote entity - full button surface for activities."""
 
+import asyncio
 import logging
 from typing import Any
 
@@ -45,6 +46,7 @@ from uc_intg_sky_stream.const import (
     KEY_VOLUME_UP,
     KEY_YELLOW,
     STATE_ON,
+    VERIFIED_KEYS,
 )
 from uc_intg_sky_stream.device import SkyStreamDevice
 
@@ -93,6 +95,22 @@ COMMAND_MAP: dict[str, str] = {
 }
 
 SIMPLE_COMMANDS = ["POWER", "POWER_ON", "POWER_OFF"] + list(COMMAND_MAP.keys())
+
+# Free-form send_cmd also accepts the box's own key names (e.g. "ArrowUp", "Digit5"), any case.
+_RAW_KEYS: dict[str, str] = {key.lower(): key for key in VERIFIED_KEYS}
+
+
+def _repeat_delay(params: dict[str, Any]) -> tuple[int, float]:
+    """Repeat count (at least 1) and delay in seconds from the command parameters."""
+    try:
+        repeat = max(1, int(params.get("repeat") or 1))
+    except (TypeError, ValueError):
+        repeat = 1
+    try:
+        delay = max(0, int(params.get("delay") or 0)) / 1000
+    except (TypeError, ValueError):
+        delay = 0.0
+    return repeat, delay
 
 
 class SkyStreamRemote(RemoteEntity):
@@ -169,6 +187,7 @@ class SkyStreamRemote(RemoteEntity):
         self.update({remote.Attributes.STATE: state})
 
     async def _handle_command(self, entity: Any, cmd_id: str, params: dict | None = None, *_a: Any) -> StatusCodes:
+        params = params or {}
         try:
             if cmd_id == remote.Commands.ON:
                 await self._device.power_on()
@@ -177,30 +196,51 @@ class SkyStreamRemote(RemoteEntity):
                 await self._device.power_off()
                 return StatusCodes.OK
             if cmd_id == remote.Commands.TOGGLE:
-                await self._device.power_toggle()
-                return StatusCodes.OK
-            if cmd_id != remote.Commands.SEND_CMD:
+                return StatusCodes.OK if await self._device.power_toggle() else StatusCodes.SERVICE_UNAVAILABLE
+            if cmd_id == remote.Commands.SEND_CMD:
+                commands = [params.get("command", "")]
+            elif cmd_id == remote.Commands.SEND_CMD_SEQUENCE:
+                sequence = params.get("sequence", [])
+                if isinstance(sequence, str):
+                    sequence = sequence.split(",")
+                commands = list(sequence)
+            else:
                 return StatusCodes.NOT_IMPLEMENTED
-            return await self._run((params or {}).get("command", ""))
+            commands = [str(command).strip() for command in commands if str(command).strip()]
+            if not commands:
+                return StatusCodes.BAD_REQUEST
+
+            repeat, delay = _repeat_delay(params)
+            first = True
+            for _ in range(repeat):
+                for command in commands:
+                    if not first and delay:
+                        await asyncio.sleep(delay)
+                    first = False
+                    status = await self._run(command)
+                    if status != StatusCodes.OK:
+                        return status
+            return StatusCodes.OK
         except Exception as err:  # pylint: disable=broad-exception-caught
             _LOG.error("[%s] Remote command error (%s): %s", entity.id, cmd_id, err)
             return StatusCodes.SERVER_ERROR
 
     async def _run(self, command: str) -> StatusCodes:
-        if command == "POWER":
-            await self._device.power_toggle()
-            return StatusCodes.OK
-        if command == "POWER_ON":
+        name = command.upper()
+        if name == "POWER":
+            ok = await self._device.power_toggle()
+            return StatusCodes.OK if ok else StatusCodes.SERVICE_UNAVAILABLE
+        if name == "POWER_ON":
             await self._device.power_on()
             return StatusCodes.OK
-        if command == "POWER_OFF":
+        if name == "POWER_OFF":
             await self._device.power_off()
             return StatusCodes.OK
-        key = COMMAND_MAP.get(command)
+        key = COMMAND_MAP.get(name) or _RAW_KEYS.get(command.lower())
         if key is None:
+            _LOG.warning("[%s] Unknown command: %s", self.id, command)
             return StatusCodes.NOT_IMPLEMENTED
-        await self._device.send_key(key)
-        return StatusCodes.OK
+        return StatusCodes.OK if await self._device.send_key(key) else StatusCodes.SERVICE_UNAVAILABLE
 
 
 def create_remote(device_config: SkyStreamConfig, device: SkyStreamDevice) -> list[SkyStreamRemote]:
